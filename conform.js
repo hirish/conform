@@ -85,19 +85,20 @@ ReactValidation = (function() {
     return {
       conformRegistered: [],
       componentWillMount: function() {
-        var addRegisterToNode, conformRegisterInput;
-        conformRegisterInput = (function(_this) {
+        var conformRegisterInput;
+        return conformRegisterInput = (function(_this) {
           return function(input) {
-            return _this.conformRegistered.push(input);
+            var addRegisterToNode;
+            _this.conformRegistered.push(input);
+            addRegisterToNode = function(node) {
+              node.conformRegisterInput = conformRegisterInput;
+              if (node.props.children) {
+                return React.Children.forEach(node.props.children, addRegisterToNode);
+              }
+            };
+            return addRegisterToNode(_this);
           };
         })(this);
-        addRegisterToNode = function(node) {
-          node.conformRegisterInput = conformRegisterInput;
-          if (node.props.children) {
-            return React.Children.forEach(node.props.children, addRegisterToNode);
-          }
-        };
-        return addRegisterToNode(this);
       }
     };
   };
@@ -119,11 +120,7 @@ ReactValidation = (function() {
       },
       value: function() {
         var input;
-        if (this.props.value != null) {
-          return this.props.value;
-        }
-        input = React.Children.only(this.props.children);
-        return input.getDOMNode().value;
+        return this.props.value(this.props.value != null ? (input = React.Children.only(this.props.children), input.getDOMNode().value) : void 0);
       },
       validate: function(x) {
         var value;
@@ -197,26 +194,38 @@ Validators = {
     }
   },
   Web: {
-    URL: function() {},
-    Domain: function() {},
-    IP: function() {}
+    URL: function() {
+      return _regexValidator(/(https?|ftp|file|ssh):\/\/(((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?/);
+    },
+    Domain: function() {
+      return _regexValidator(/^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/);
+    },
+    IP: function() {
+      return _regexValidator(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/);
+    }
   },
   Color: function() {},
   DateTime: {
-    DateTime: function() {},
-    Date: function() {},
-    Time: function() {}
+    DateTime: function() {
+      return _regexValidator(/([0-2][0-9]{3})\-([0-1][0-9])\-([0-3][0-9])T([0-5][0-9])\:([0-5][0-9])\:([0-5][0-9])(Z|([\-\+]([0-1][0-9])\:00))/);
+    },
+    Date: function() {
+      return _regexValidator(/(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))/);
+    },
+    Time: function() {
+      return _regexValidator(/(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}/);
+    },
+    DateISO: function() {
+      return _regexValidator(/\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/);
+    }
   },
   Contact: {
-    Email: function() {},
+    Email: function() {
+      return _regexValidator(/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/);
+    },
     USState: function() {},
     Zip: function(m) {
       return _regexValidator(/(^\d{5}$)|(^\d{5}-\d{4}$)/, m || "Invalid Zip Code");
-    },
-    Phone: {
-      UK: function() {},
-      USA: function() {},
-      France: function() {}
     }
   },
   Number: {
@@ -237,8 +246,7 @@ Validators = {
     },
     NegativeFloat: function(m) {
       return _regexValidator(/^-\d+.?\d*$/, m || "Must be a negative float");
-    },
-    Range: function(m) {}
+    }
   }
 };
 

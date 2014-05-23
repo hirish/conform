@@ -41,7 +41,7 @@ class ReactValidation
 
 				addRegisterToNode = (node) ->
 					node.conformRegisterInput= conformRegisterInput
-						if node.props.children then React.Children.forEach node.props.children, addRegisterToNode
+					if node.props.children then React.Children.forEach node.props.children, addRegisterToNode
 
 				addRegisterToNode @
 
@@ -101,14 +101,26 @@ Validators =
 		CVV: (m) ->
 			_regexValidator /^\d{3,4}$/, m or "Invalid CVV"
 	Web:
+		# Zurb Foundation - Abide
 		URL: ->
 			_regexValidator /(https?|ftp|file|ssh):\/\/(((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?/
+		Domain: ->
+			_regexValidator /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/
 		IP: ->
+			_regexValidator /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/
 	Color: ->
+	# Zurb Foundation - Abide
 	DateTime:
 		DateTime: ->
+			_regexValidator /([0-2][0-9]{3})\-([0-1][0-9])\-([0-3][0-9])T([0-5][0-9])\:([0-5][0-9])\:([0-5][0-9])(Z|([\-\+]([0-1][0-9])\:00))/
+		# YYYY-MM-DD
 		Date: ->
+			_regexValidator /(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-9])|(?:(?!02)(?:0[1-9]|1[0-2])-(?:30))|(?:(?:0[13578]|1[02])-31))/
+		# HH:MM:SS
 		Time: ->
+			_regexValidator /(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}/
+		DateISO: ->
+			_regexValidator /\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/
 	Contact:
 		# http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#valid-e-mail-address
 		Email: ->  
@@ -117,10 +129,6 @@ Validators =
 		USState: ->
 		Zip: (m) ->
 			_regexValidator /(^\d{5}$)|(^\d{5}-\d{4}$)/, m or "Invalid Zip Code"
-		Phone:
-			UK: ->
-			USA: ->
-			France: ->
 	Number:
 		Positive: (m) ->
 			_regexValidator /^[+]?\d+$/, m or "Must be a positive integer"
@@ -134,6 +142,5 @@ Validators =
 			_regexValidator /^[+]?\d+.?\d*$/, m or "Must be a positive float"
 		NegativeFloat: (m) ->
 			_regexValidator /^-\d+.?\d*$/, m or "Must be a negative float"
-		Range: (m) ->
 
 module.exports = {ReactValidation, Validators}
