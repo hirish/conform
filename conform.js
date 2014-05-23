@@ -85,20 +85,19 @@ ReactValidation = (function() {
     return {
       conformRegistered: [],
       componentWillMount: function() {
-        var conformRegisterInput;
-        return conformRegisterInput = (function(_this) {
+        var addRegisterToNode, conformRegisterInput;
+        conformRegisterInput = (function(_this) {
           return function(input) {
-            var addRegisterToNode;
-            _this.conformRegistered.push(input);
-            addRegisterToNode = function(node) {
-              node.conformRegisterInput = conformRegisterInput;
-              if (node.props.children) {
-                return React.Children.forEach(node.props.children, addRegisterToNode);
-              }
-            };
-            return addRegisterToNode(_this);
+            return _this.conformRegistered.push(input);
           };
         })(this);
+        addRegisterToNode = function(node) {
+          node.conformRegisterInput = conformRegisterInput;
+          if (node.props.children) {
+            return React.Children.forEach(node.props.children, addRegisterToNode);
+          }
+        };
+        return addRegisterToNode(this);
       }
     };
   };
@@ -120,7 +119,11 @@ ReactValidation = (function() {
       },
       value: function() {
         var input;
-        return this.props.value(this.props.value != null ? (input = React.Children.only(this.props.children), input.getDOMNode().value) : void 0);
+        if (this.props.value != null) {
+          return this.props.value;
+        }
+        input = React.Children.only(this.props.children);
+        return input.getDOMNode().value;
       },
       validate: function(x) {
         var value;

@@ -39,11 +39,11 @@ class ReactValidation
 			conformRegisterInput = (input) =>
 				@conformRegistered.push input
 
-				addRegisterToNode = (node) ->
-					node.conformRegisterInput= conformRegisterInput
-					if node.props.children then React.Children.forEach node.props.children, addRegisterToNode
+			addRegisterToNode = (node) ->
+				node.conformRegisterInput = conformRegisterInput
+				if node.props.children then React.Children.forEach node.props.children, addRegisterToNode
 
-				addRegisterToNode @
+			addRegisterToNode @
 
 	@text: ->
 		componentDidMount: ->
@@ -57,8 +57,8 @@ class ReactValidation
 
 		value: ->
 			return @props.value if @props.value?
-				input = React.Children.only @props.children
-				input.getDOMNode().value
+			input = React.Children.only @props.children
+			input.getDOMNode().value
 
 		validate: (x) ->
 			value = if x.target? then x.target.value else x
