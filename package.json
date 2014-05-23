@@ -1,0 +1,12 @@
+{
+	"name": "conform",
+	"devDependencies": {
+		"coffee-script": "1.7.1",
+		"gulp": "3.6.2",
+		"gulp-coffee": "1.4.2",
+		"gulp-browserify": "0.5.0",
+		"gulp-rename": "1.2.0",
+		"coffeeify": "0.6.0",
+		"reactify": "0.11.0"
+	}
+}
