@@ -1,0 +1,31 @@
+{
+  "name": "conform",
+  "version": "0.0.1",
+  "description": "React Validation Library",
+  "main": "src/conform.coffee",
+  "keywords": [
+    "react",
+    "coffee",
+    "validation",
+    "validate",
+    "form",
+    "input",
+    "regex",
+    "reactjs"
+  ],
+  "authors": [
+    "Henry Irish"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+	"dependencies": {
+		"underscore": ">=1.6",
+		"react": ">=0.10"
+	}
+}
