@@ -2,7 +2,7 @@
   "name": "conform",
   "version": "0.0.1",
   "description": "React Validation Library",
-  "main": "src/conform.coffee",
+  "main": "conform.js",
   "keywords": [
     "react",
     "coffee",
