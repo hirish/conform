@@ -25,7 +25,8 @@
     "tests",
 		"src",
 		"index.html",
-		"package.json"
+		"package.json",
+		"gulpfile.coffee"
   ],
 	"dependencies": {
 		"underscore": ">=1.6",
