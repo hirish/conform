@@ -1,5 +1,3 @@
-`/** @jsx React.DOM */`
-
 #
 # Main Validation Function
 #
@@ -23,7 +21,7 @@ class ReactValidation
 
 		isValid = errors.length is 0
 
-		validateCb = @props.onValidate or (valid, errorMessage, value) -> console.error "Undefined error function.", errorMessage
+		validateCb = @props.onValidate or (valid, errorMessage, value) -> console.error "onValidate is not defined.", errorMessage
 
 		validateCb isValid, errors, value
 
@@ -39,17 +37,13 @@ class ReactValidation
 			conformRegisterInput = (input) =>
 				@conformRegistered.push input
 
-			addRegisterToNode = (node) ->
-				node.conformRegisterInput = conformRegisterInput
-				if node.props.children then React.Children.forEach node.props.children, addRegisterToNode
-
-			addRegisterToNode @
+			@_owner._conformRegisterInput = conformRegisterInput
 
 	@text: ->
 		componentDidMount: ->
 			registerWithNode = (node) =>
-				if node.conformRegisterInput?
-					node.conformRegisterInput @
+				if node._conformRegisterInput?
+					node._conformRegisterInput @
 				else if node._owner?
 					registerWithNode node._owner
 
@@ -57,7 +51,7 @@ class ReactValidation
 
 		value: ->
 			return @props.value if @props.value?
-			input = React.Children.only @props.children
+			input = @refs.value
 			input.getDOMNode().value
 
 		validate: (x) ->
@@ -72,7 +66,7 @@ _regexValidator = (regex, errorMessage) ->
 
 _lengthValidator = (size, errorMessage) ->
 	(value) =>
-		defaultMessage = "#{value} was not >= #{size}."
+		defaultMessage = "Must be longer than #{size} characters."
 		if value.length < size then return errorMessage or defaultMessage
 
 Validators =
@@ -85,7 +79,7 @@ Validators =
 		Alpha: (m) ->
 			_regexValidator /^[a-zA-Z]+$/, m
 		AlphaNumeric: (m) ->
-			_regexValidator /^[a-zA-Z0-9]+$/, m
+			_regexValidator /^[a-zA-Z0-9]+$/, m or "Can only contain alphanumeric characters."
 	Password:
 		Weak: ->
 		Medium: (m) ->
@@ -124,7 +118,7 @@ Validators =
 	Contact:
 		# http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#valid-e-mail-address
 		Email: ->  
-			_regexValidator /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+			_regexValidator /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/, "Not a valid email."
 
 		USState: ->
 		Zip: (m) ->

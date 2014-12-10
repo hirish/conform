@@ -1,24 +1,24 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Conform=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-var ValidatedForm, ValidatedInput, Validators, _ref;
+var Form, Input, Validators, _ref;
 
 Validators = _dereq_('./validation.coffee').Validators;
 
-_ref = _dereq_('./inputs.coffee'), ValidatedInput = _ref.ValidatedInput, ValidatedForm = _ref.ValidatedForm;
+_ref = _dereq_('./inputs.cjsx'), Input = _ref.Input, Form = _ref.Form;
 
 module.exports = {
   Validators: Validators,
-  ValidatedInput: ValidatedInput,
-  ValidatedForm: ValidatedForm
+  Input: Input,
+  Form: Form
 };
 
 
-},{"./inputs.coffee":2,"./validation.coffee":3}],2:[function(_dereq_,module,exports){
-/** @jsx React.DOM */;
-var ReactValidation, ValidatedForm, ValidatedInput;
+
+},{"./inputs.cjsx":2,"./validation.coffee":3}],2:[function(_dereq_,module,exports){
+var Form, Input, ReactValidation;
 
 ReactValidation = _dereq_('./validation.coffee').ReactValidation;
 
-ValidatedInput = React.createClass({displayName: 'ValidatedInput',
+Input = React.createClass({
   mixins: [ReactValidation.text()],
   onBlur: function(event, reactId) {
     this.validate(event);
@@ -27,11 +27,15 @@ ValidatedInput = React.createClass({displayName: 'ValidatedInput',
     }
   },
   render: function() {
-    return this.transferPropsTo(React.DOM.input( {onBlur:this.onBlur} ));
+    return React.createElement("input", React.__spread({
+      "ref": 'value'
+    }, {
+      "onBlur": this.onBlur
+    }, this.props));
   }
 });
 
-ValidatedForm = React.createClass({displayName: 'ValidatedForm',
+Form = React.createClass({
   mixins: [ReactValidation.form()],
   onSubmit: function(event, reactId) {
     var valid;
@@ -39,24 +43,29 @@ ValidatedForm = React.createClass({displayName: 'ValidatedForm',
       return node.validate(node.value());
     }));
     if (valid && this.props.onSubmit) {
+      event.preventDefault();
       return this.props.onSubmit(event, reactId);
+    } else if (!valid) {
+      return event.preventDefault();
     } else {
-      return valid;
+      return console.log("Firing");
     }
   },
   render: function() {
-    return this.transferPropsTo(React.DOM.form( {onSubmit:this.onSubmit}, this.props.children));
+    return React.createElement("form", React.__spread({}, this.props, {
+      "onSubmit": this.onSubmit
+    }), this.props.children);
   }
 });
 
 module.exports = {
-  ValidatedInput: ValidatedInput,
-  ValidatedForm: ValidatedForm
+  Input: Input,
+  Form: Form
 };
 
 
+
 },{"./validation.coffee":3}],3:[function(_dereq_,module,exports){
-/** @jsx React.DOM */;
 var ReactValidation, Validators, _lengthValidator, _regexValidator;
 
 ReactValidation = (function() {
@@ -75,7 +84,7 @@ ReactValidation = (function() {
     }
     isValid = errors.length === 0;
     validateCb = this.props.onValidate || function(valid, errorMessage, value) {
-      return console.error("Undefined error function.", errorMessage);
+      return console.error("onValidate is not defined.", errorMessage);
     };
     validateCb(isValid, errors, value);
     return isValid;
@@ -85,19 +94,13 @@ ReactValidation = (function() {
     return {
       conformRegistered: [],
       componentWillMount: function() {
-        var addRegisterToNode, conformRegisterInput;
+        var conformRegisterInput;
         conformRegisterInput = (function(_this) {
           return function(input) {
             return _this.conformRegistered.push(input);
           };
         })(this);
-        addRegisterToNode = function(node) {
-          node.conformRegisterInput = conformRegisterInput;
-          if (node.props.children) {
-            return React.Children.forEach(node.props.children, addRegisterToNode);
-          }
-        };
-        return addRegisterToNode(this);
+        return this._owner._conformRegisterInput = conformRegisterInput;
       }
     };
   };
@@ -108,8 +111,8 @@ ReactValidation = (function() {
         var registerWithNode;
         registerWithNode = (function(_this) {
           return function(node) {
-            if (node.conformRegisterInput != null) {
-              return node.conformRegisterInput(_this);
+            if (node._conformRegisterInput != null) {
+              return node._conformRegisterInput(_this);
             } else if (node._owner != null) {
               return registerWithNode(node._owner);
             }
@@ -122,7 +125,7 @@ ReactValidation = (function() {
         if (this.props.value != null) {
           return this.props.value;
         }
-        input = React.Children.only(this.props.children);
+        input = this.refs.value;
         return input.getDOMNode().value;
       },
       validate: function(x) {
@@ -153,7 +156,7 @@ _lengthValidator = function(size, errorMessage) {
   return (function(_this) {
     return function(value) {
       var defaultMessage;
-      defaultMessage = "" + value + " was not >= " + size + ".";
+      defaultMessage = "Must be longer than " + size + " characters.";
       if (value.length < size) {
         return errorMessage || defaultMessage;
       }
@@ -173,7 +176,7 @@ Validators = {
       return _regexValidator(/^[a-zA-Z]+$/, m);
     },
     AlphaNumeric: function(m) {
-      return _regexValidator(/^[a-zA-Z0-9]+$/, m);
+      return _regexValidator(/^[a-zA-Z0-9]+$/, m || "Can only contain alphanumeric characters.");
     }
   },
   Password: {
@@ -224,7 +227,7 @@ Validators = {
   },
   Contact: {
     Email: function() {
-      return _regexValidator(/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/);
+      return _regexValidator(/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/, "Not a valid email.");
     },
     USState: function() {},
     Zip: function(m) {
@@ -257,6 +260,7 @@ module.exports = {
   ReactValidation: ReactValidation,
   Validators: Validators
 };
+
 
 
 },{}]},{},[1])
