@@ -20,68 +20,60 @@ module.exports = Demo = React.createClass
 				error = <span>{@state.errors[name].map (error) -> <div key={error}>{error}</div>}</span>
 				<Icon icon="exclamation-circle" classes="input" tooltip={error} />
 
-		<div>
-			<Conform.Form onSubmit={@onSubmit}>
-				<h1>Conform Demo</h1>
+		confirmValidator = (value) =>
+			if value isnt (@state.password or '') then return "Does not match password."
 
-				<section className="left">
-					<label>Username</label>
-					<Conform.Input
-						type="text"
-						validator={[
-							Conform.Validators.Basic.Required()
-							Conform.Validators.Basic.Length(4)
-							Conform.Validators.Basic.AlphaNumeric()
-						]}
-						onValidate={@onValidate 'username'}
-						valueLink={@linkState 'username'}
-						/>
-					{errorIcon 'username'}
+		<Conform.form onSubmit={@onSubmit}>
 
-					<label>Email</label>
-					<Conform.Input
-						placeholder="username@doman.com"
-						type="text"
-						validator={Conform.Validators.Contact.Email()}
-						onValidate={@onValidate 'email'}
-						valueLink={@linkState 'email'}
-						/>
-					{errorIcon 'email'}
+			<label>Username</label>
+			<Conform.input
+				type="text"
+				validator={[
+					Conform.Validators.Basic.Required()
+					Conform.Validators.Basic.Length(4)
+					Conform.Validators.Basic.AlphaNumeric()
+				]}
+				onValidate={@onValidate 'username'}
+				valueLink={@linkState 'username'}
+				placeholder="This is a really really long placeholder"
+				className="u-full-width"
+				/>
+			{errorIcon 'username'}
 
-					<label>Phone Number</label>
-					<Conform.Input
-						type="text"
-						validator={Conform.Validators.Basic.Required()}
-						onValidate={@onValidate 'phone'}
-						valueLink={@linkState 'phone'}
-						/>
-					{errorIcon 'phone'}
-				</section>
+			<label>Email</label>
+			<Conform.input
+				placeholder="username@doman.com"
+				type="text"
+				validator={Conform.Validators.Contact.Email()}
+				onValidate={@onValidate 'email'}
+				valueLink={@linkState 'email'}
+				className="u-full-width"
+				/>
+			{errorIcon 'email'}
 
-				<section className="right">
-					<label>Price</label>
-					<Conform.Input
-						placeholder="$0.00"
-						type="text"
-						validator={Conform.Validators.Payment.Price()}
-						onValidate={@onValidate 'price'}
-						valueLink={@linkState 'price'}
-						/>
-					{errorIcon 'price'}
+			<label>Password</label>
+			<Conform.input
+				type="password"
+				validator={Conform.Validators.Password()}
+				onValidate={@onValidate 'password'}
+				valueLink={@linkState 'password'}
+				className="u-full-width"
+				/>
+			{errorIcon 'password'}
 
-					<label>Credit Card</label>
-					<Conform.Input
-						type="text"
-						validator={Conform.Validators.Basic.Required()}
-						onValidate={@onValidate 'card'}
-						valueLink={@linkState 'card'}
-						/>
-					{errorIcon 'card'}
-				</section>
+			<label>Confirm Your Password</label>
+			<Conform.input
+				type="password"
+				validator={confirmValidator}
+				onValidate={@onValidate 'confirm'}
+				valueLink={@linkState 'confirm'}
+				className="u-full-width"
+				/>
+			{errorIcon 'confirm'}
 
-				<button>Submit</button>
-			</Conform.Form>
-		</div>
+			<input type="submit" value="Submit" className="button-primary" />
+
+		</Conform.form>
 
 $container = document.getElementById 'react-base'
 React.render <Demo />, $container
