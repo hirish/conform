@@ -1,16 +1,20 @@
 {ReactValidation} = require './validation.coffee'
 
-Input = React.createClass
+input = React.createClass
 	mixins: [ ReactValidation.text() ]
+
+	getInitialState: ->
+		valid: true
 
 	onBlur: (event, reactId) ->
 		@validate event
 		if @props.onBlur then @props.onBlur event, reactId
 
 	render: ->
-		<input ref='value' onBlur={@onBlur} {...@props} />
+		c = if not @state.valid then ' invalid' else ''
+		<input {...@props} ref='value' className={@props.className + c} onBlur={@onBlur} />
 
-Form = React.createClass
+form = React.createClass
 	mixins: [ ReactValidation.form() ]
 
 	onSubmit: (event, reactId) ->
@@ -26,4 +30,4 @@ Form = React.createClass
 		<form {...@props} onSubmit={@onSubmit}>{@props.children}</form>
 		
 
-module.exports = {Input, Form}
+module.exports = {input, form}

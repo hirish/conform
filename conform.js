@@ -1,25 +1,30 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Conform=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-var Form, Input, Validators, _ref;
+var Validators, form, input, _ref;
 
 Validators = _dereq_('./validation.coffee').Validators;
 
-_ref = _dereq_('./inputs.cjsx'), Input = _ref.Input, Form = _ref.Form;
+_ref = _dereq_('./inputs.cjsx'), input = _ref.input, form = _ref.form;
 
 module.exports = {
   Validators: Validators,
-  Input: Input,
-  Form: Form
+  input: input,
+  form: form
 };
 
 
 
 },{"./inputs.cjsx":2,"./validation.coffee":3}],2:[function(_dereq_,module,exports){
-var Form, Input, ReactValidation;
+var ReactValidation, form, input;
 
 ReactValidation = _dereq_('./validation.coffee').ReactValidation;
 
-Input = React.createClass({
+input = React.createClass({
   mixins: [ReactValidation.text()],
+  getInitialState: function() {
+    return {
+      valid: true
+    };
+  },
   onBlur: function(event, reactId) {
     this.validate(event);
     if (this.props.onBlur) {
@@ -27,15 +32,19 @@ Input = React.createClass({
     }
   },
   render: function() {
-    return React.createElement("input", React.__spread({
+    var c;
+    c = !this.state.valid ? ' invalid' : '';
+    return React.createElement("input", React.__spread({}, this.props, {
       "ref": 'value'
     }, {
+      "className": this.props.className + c
+    }, {
       "onBlur": this.onBlur
-    }, this.props));
+    }));
   }
 });
 
-Form = React.createClass({
+form = React.createClass({
   mixins: [ReactValidation.form()],
   onSubmit: function(event, reactId) {
     var valid;
@@ -47,8 +56,6 @@ Form = React.createClass({
       return this.props.onSubmit(event, reactId);
     } else if (!valid) {
       return event.preventDefault();
-    } else {
-      return console.log("Firing");
     }
   },
   render: function() {
@@ -59,14 +66,14 @@ Form = React.createClass({
 });
 
 module.exports = {
-  Input: Input,
-  Form: Form
+  input: input,
+  form: form
 };
 
 
 
 },{"./validation.coffee":3}],3:[function(_dereq_,module,exports){
-var ReactValidation, Validators, _lengthValidator, _regexValidator;
+var ReactValidation, Validators, _concat, _lengthValidator, _regexValidator;
 
 ReactValidation = (function() {
   function ReactValidation() {}
@@ -79,7 +86,7 @@ ReactValidation = (function() {
       validator = validators[_i];
       errorMessage = validator(value);
       if (errorMessage != null) {
-        errors.push(errorMessage);
+        errors = errors.concat(errorMessage);
       }
     }
     isValid = errors.length === 0;
@@ -129,9 +136,12 @@ ReactValidation = (function() {
         return input.getDOMNode().value;
       },
       validate: function(x) {
-        var value;
+        var valid, value;
         value = x.target != null ? x.target.value : x;
-        return ReactValidation._validate.bind(this, value)();
+        valid = ReactValidation._validate.bind(this, value)();
+        return this.setState({
+          valid: valid
+        });
       }
     };
   };
@@ -164,6 +174,26 @@ _lengthValidator = function(size, errorMessage) {
   })(this);
 };
 
+_concat = function(validators) {
+  return function(value) {
+    var errors, validator;
+    errors = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = validators.length; _i < _len; _i++) {
+        validator = validators[_i];
+        if (validator(value)) {
+          _results.push(validator(value));
+        }
+      }
+      return _results;
+    })();
+    if (errors.length > 0) {
+      return errors;
+    }
+  };
+};
+
 Validators = {
   None: function() {},
   Basic: {
@@ -179,12 +209,8 @@ Validators = {
       return _regexValidator(/^[a-zA-Z0-9]+$/, m || "Can only contain alphanumeric characters.");
     }
   },
-  Password: {
-    Weak: function() {},
-    Medium: function(m) {
-      return _regexValidator(/(?=^.{7,}$)(?=.*\d).*$/, m);
-    },
-    Strong: function() {}
+  Password: function(m) {
+    return _regexValidator(/(?=^.{7,}$)(?=.*\d).*$/, m || "Password must be longer than 7 characters and contain at least 1 number.");
   },
   Payment: {
     Price: function(m) {

@@ -17,7 +17,7 @@ class ReactValidation
 		for validator in validators
 			errorMessage = validator value
 			if errorMessage?
-				errors.push errorMessage
+				errors = errors.concat errorMessage
 
 		isValid = errors.length is 0
 
@@ -56,7 +56,8 @@ class ReactValidation
 
 		validate: (x) ->
 			value = if x.target? then x.target.value else x
-			do ReactValidation._validate.bind @, value
+			valid = do ReactValidation._validate.bind @, value
+			@setState valid: valid
 
 
 _regexValidator = (regex, errorMessage) ->
@@ -69,6 +70,11 @@ _lengthValidator = (size, errorMessage) ->
 		defaultMessage = "Must be longer than #{size} characters."
 		if value.length < size then return errorMessage or defaultMessage
 
+_concat = (validators) ->
+	(value) ->
+		errors = (validator value for validator in validators when validator value)
+		if errors.length > 0 then return errors
+
 Validators =
 	None: -> return
 	Basic:
@@ -80,11 +86,8 @@ Validators =
 			_regexValidator /^[a-zA-Z]+$/, m
 		AlphaNumeric: (m) ->
 			_regexValidator /^[a-zA-Z0-9]+$/, m or "Can only contain alphanumeric characters."
-	Password:
-		Weak: ->
-		Medium: (m) ->
-			_regexValidator /(?=^.{7,}$)(?=.*\d).*$/, m
-		Strong: ->
+	Password: (m) ->
+		_regexValidator /(?=^.{7,}$)(?=.*\d).*$/, m or "Password must be longer than 7 characters and contain at least 1 number."
 	Payment:
 		Price: (m) ->
 			_regexValidator /^[$£€]?\d+(?:\.\d\d)?$/, m or "Invalid Price"

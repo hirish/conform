@@ -1,4 +1,4 @@
 {Validators} = require './validation.coffee'
-{Input, Form} = require './inputs.cjsx'
+{input, form} = require './inputs.cjsx'
 
-module.exports = {Validators, Input, Form}
+module.exports = {Validators, input, form}
