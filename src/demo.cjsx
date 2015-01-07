@@ -1,9 +1,15 @@
 Icon = require '../../oneshop/coffee/utils/Icon.cjsx'
 
+submit =
+	WAITING: 1
+	SUCCESS: 2
+
+
 module.exports = Demo = React.createClass
 	mixins: [React.addons.LinkedStateMixin]
 
 	getInitialState: ->
+		submitState: submit.WAITING
 		errors: {}
 
 	onValidate: (name) ->
@@ -12,7 +18,15 @@ module.exports = Demo = React.createClass
 			@setState errors: @state.errors
 	
 	onSubmit: ->
-		console.log "Successfully submitted"
+		@setState submitState: submit.SUCCESS
+		setTimeout (=>
+			@setState
+				submitState: submit.WAITING
+				username: ''
+				email: ''
+				password: ''
+				confirm: ''
+		), 1000
 	
 	render: ->
 		errorIcon = (name) =>
@@ -23,26 +37,32 @@ module.exports = Demo = React.createClass
 		confirmValidator = (value) =>
 			if value isnt (@state.password or '') then return "Does not match password."
 
+		submitButton =
+			if @state.submitState is submit.WAITING
+				<input type="submit" value="Submit" className="button-primary" />
+			else if @state.submitState is submit.SUCCESS
+				<input type="submit" value="Success!" className="button-primary success" />
+
 		<Conform.form onSubmit={@onSubmit}>
 
 			<label>Username</label>
 			<Conform.input
 				type="text"
 				validator={[
-					Conform.Validators.Basic.Required()
-					Conform.Validators.Basic.Length(4)
-					Conform.Validators.Basic.AlphaNumeric()
+					Conform.Validators.Required()
+					Conform.Validators.Length(4)
+					Conform.Validators.AlphaNumeric()
 				]}
 				onValidate={@onValidate 'username'}
 				valueLink={@linkState 'username'}
-				placeholder="This is a really really long placeholder"
+				placeholder="Desired Username"
 				className="u-full-width"
 				/>
 			{errorIcon 'username'}
 
 			<label>Email</label>
 			<Conform.input
-				placeholder="username@doman.com"
+				placeholder="username@domain.com"
 				type="text"
 				validator={Conform.Validators.Contact.Email()}
 				onValidate={@onValidate 'email'}
@@ -71,7 +91,9 @@ module.exports = Demo = React.createClass
 				/>
 			{errorIcon 'confirm'}
 
-			<input type="submit" value="Submit" className="button-primary" />
+			<label />
+
+			{submitButton}
 
 		</Conform.form>
 

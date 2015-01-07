@@ -1,4 +1,4 @@
-{ReactValidation} = require './validation.coffee'
+ReactValidation = require './validation.coffee'
 
 input = React.createClass
 	mixins: [ ReactValidation.text() ]

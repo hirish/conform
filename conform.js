@@ -1,7 +1,7 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Conform=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var Validators, form, input, _ref;
 
-Validators = _dereq_('./validation.coffee').Validators;
+Validators = _dereq_('./validators/Validators.coffee');
 
 _ref = _dereq_('./inputs.cjsx'), input = _ref.input, form = _ref.form;
 
@@ -13,10 +13,10 @@ module.exports = {
 
 
 
-},{"./inputs.cjsx":2,"./validation.coffee":3}],2:[function(_dereq_,module,exports){
+},{"./inputs.cjsx":2,"./validators/Validators.coffee":4}],2:[function(_dereq_,module,exports){
 var ReactValidation, form, input;
 
-ReactValidation = _dereq_('./validation.coffee').ReactValidation;
+ReactValidation = _dereq_('./validation.coffee');
 
 input = React.createClass({
   mixins: [ReactValidation.text()],
@@ -73,7 +73,7 @@ module.exports = {
 
 
 },{"./validation.coffee":3}],3:[function(_dereq_,module,exports){
-var ReactValidation, Validators, _concat, _lengthValidator, _regexValidator;
+var ReactValidation;
 
 ReactValidation = (function() {
   function ReactValidation() {}
@@ -139,9 +139,10 @@ ReactValidation = (function() {
         var valid, value;
         value = x.target != null ? x.target.value : x;
         valid = ReactValidation._validate.bind(this, value)();
-        return this.setState({
+        this.setState({
           valid: valid
         });
+        return valid;
       }
     };
   };
@@ -149,6 +150,13 @@ ReactValidation = (function() {
   return ReactValidation;
 
 })();
+
+module.exports = ReactValidation;
+
+
+
+},{}],4:[function(_dereq_,module,exports){
+var Validators, _concat, _lengthValidator, _regexValidator;
 
 _regexValidator = function(regex, errorMessage) {
   return (function(_this) {
@@ -194,48 +202,22 @@ _concat = function(validators) {
   };
 };
 
-Validators = {
+module.exports = Validators = {
   None: function() {},
-  Basic: {
-    Regex: _regexValidator,
-    Length: _lengthValidator,
-    Required: function(m) {
-      return _lengthValidator(1, m || "Value is required.");
-    },
-    Alpha: function(m) {
-      return _regexValidator(/^[a-zA-Z]+$/, m);
-    },
-    AlphaNumeric: function(m) {
-      return _regexValidator(/^[a-zA-Z0-9]+$/, m || "Can only contain alphanumeric characters.");
-    }
+  Or: _dereq_('./or.coffee'),
+  And: _dereq_('./and.coffee'),
+  Regex: _dereq_('./regex.coffee'),
+  Length: _dereq_('./length.coffee'),
+  Required: _dereq_('./required.coffee'),
+  Alpha: _dereq_('./alpha.coffee'),
+  AlphaNumeric: _dereq_('./alphaNumeric.coffee'),
+  Password: _dereq_('./password.coffee'),
+  Price: _dereq_('./price.coffee'),
+  Card: function(m) {},
+  CVV: function(m) {
+    return _regexValidator(/^\d{3,4}$/, m || "Invalid CVV");
   },
-  Password: function(m) {
-    return _regexValidator(/(?=^.{7,}$)(?=.*\d).*$/, m || "Password must be longer than 7 characters and contain at least 1 number.");
-  },
-  Payment: {
-    Price: function(m) {
-      return _regexValidator(/^[$£€]?\d+(?:\.\d\d)?$/, m || "Invalid Price");
-    },
-    Card: {
-      All: function() {},
-      Visa: function() {},
-      MasterCard: function() {}
-    },
-    CVV: function(m) {
-      return _regexValidator(/^\d{3,4}$/, m || "Invalid CVV");
-    }
-  },
-  Web: {
-    URL: function() {
-      return _regexValidator(/(https?|ftp|file|ssh):\/\/(((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?/);
-    },
-    Domain: function() {
-      return _regexValidator(/^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/);
-    },
-    IP: function() {
-      return _regexValidator(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/);
-    }
-  },
+  Web: _dereq_('./Web.coffee'),
   Color: function() {},
   DateTime: {
     DateTime: function() {
@@ -282,13 +264,142 @@ Validators = {
   }
 };
 
+
+
+},{"./Web.coffee":5,"./alpha.coffee":6,"./alphaNumeric.coffee":7,"./and.coffee":8,"./length.coffee":9,"./or.coffee":10,"./password.coffee":11,"./price.coffee":12,"./regex.coffee":13,"./required.coffee":14}],5:[function(_dereq_,module,exports){
+var regexValidator;
+
+regexValidator = _dereq_('./regex.coffee');
+
 module.exports = {
-  ReactValidation: ReactValidation,
-  Validators: Validators
+  URL: function(m) {
+    return regexValidator(/(https?|ftp|file|ssh):\/\/(((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-zA-Z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-zA-Z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?/, m || "Invalid URL.");
+  },
+  Domain: function(m) {
+    return regexValidator(/^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/, m || "Invalid domain name.");
+  },
+  IP: function(m) {
+    return regexValidator(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/, m || "Invalid IP Address.");
+  }
 };
 
 
 
-},{}]},{},[1])
+},{"./regex.coffee":13}],6:[function(_dereq_,module,exports){
+var regexValidator;
+
+regexValidator = _dereq_('./regex.coffee');
+
+module.exports = function(m) {
+  return regexValidator(/^[a-zA-Z]+$/, m || "Can only contain alphabet characters.");
+};
+
+
+
+},{"./regex.coffee":13}],7:[function(_dereq_,module,exports){
+var regexValidator;
+
+regexValidator = _dereq_('./regex.coffee');
+
+module.exports = function(m) {
+  return regexValidator(/^[a-zA-Z0-9]+$/, m || "Can only contain alphanumeric characters.");
+};
+
+
+
+},{"./regex.coffee":13}],8:[function(_dereq_,module,exports){
+module.exports = function(validators) {
+  return function(m) {
+    var errors;
+    errors = validators.map(function(validator) {
+      return validator(m);
+    }).filter(function(error) {
+      return error;
+    });
+    if (errors.length !== 0) {
+      return errors;
+    }
+  };
+};
+
+
+
+},{}],9:[function(_dereq_,module,exports){
+module.exports = function(size, errorMessage) {
+  return (function(_this) {
+    return function(value) {
+      var defaultMessage;
+      defaultMessage = "Must be longer than " + size + " characters.";
+      if (value.length < size) {
+        return errorMessage || defaultMessage;
+      }
+    };
+  })(this);
+};
+
+
+
+},{}],10:[function(_dereq_,module,exports){
+module.exports = function(validators) {
+  return function(m) {
+    var errors;
+    errors = validators.map(function(validator) {
+      return validator(m);
+    }).filter(function(error) {
+      return error;
+    });
+    if (errors.length === validators.length) {
+      return errors;
+    }
+  };
+};
+
+
+
+},{}],11:[function(_dereq_,module,exports){
+var regexValidator;
+
+regexValidator = _dereq_('./regex.coffee');
+
+module.exports = function(m) {
+  return regexValidator(/(?=^.{7,}$)(?=.*[^A-Za-z ]).*$/, m || "Password must be longer than 7 characters and contain at least 1 special character.");
+};
+
+
+
+},{"./regex.coffee":13}],12:[function(_dereq_,module,exports){
+module.exports = function(m) {
+  return regexValidator(/^[$£€]?\d+(?:\.\d\d)?$/, m || "Invalid Price");
+};
+
+
+
+},{}],13:[function(_dereq_,module,exports){
+module.exports = function(regex, errorMessage) {
+  return (function(_this) {
+    return function(value) {
+      var defaultMessage;
+      defaultMessage = "" + value + " did not match regex: " + regex + ".";
+      if (!value.match(regex)) {
+        return errorMessage || defaultMessage;
+      }
+    };
+  })(this);
+};
+
+
+
+},{}],14:[function(_dereq_,module,exports){
+var lengthValidator;
+
+lengthValidator = _dereq_('./length.coffee');
+
+module.exports = function(m) {
+  return lengthValidator(1, m || "Value is required.");
+};
+
+
+
+},{"./length.coffee":9}]},{},[1])
 (1)
 });
