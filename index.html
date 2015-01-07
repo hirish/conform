@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="http://dhg.github.io/Skeleton/dist/css/skeleton.css" />
     <link rel="stylesheet" type="text/css" href="demo.css" />
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css" />
 
 	</head>
 
@@ -54,12 +55,76 @@
 				<h5>QuickStart</h5>
 
 				<p>
-					Conform provides drop in replacements for form and input tags.
+				Conform provides drop in replacements for React form and input components. <code>&lt;form&gt;</code> becomes <code>&lt;Conform.form&gt;</code> and <code>&lt;input&gt;</code> becomes <code>&lt;Conform.input&gt;</code>. Conform form components accept an identical set of props to React form components. Conform input components accept all props that React input components do, as well as two additional properties, <code>validator</code> and <code>onValidate</code>.
 				</p>
+        <!--  -->
+				<!-- <ul> -->
+        <!--  -->
+				<!-- 	<li> -->
+				<!-- 		<p> -->
+				<!-- 			<code>onValidate = (isValid, errorMsg, value) &#45;></code><br /> -->
+				<!-- 			This method is called every time the input is validated. -->
+				<!-- 		</p> -->
+				<!-- 	</li> -->
+        <!--  -->
+				<!-- 	<li> -->
+				<!-- 		<code>validator = Conform.Validators.someValidator</code> -->
+				<!-- 	</li> -->
+        <!--  -->
+				<!-- </ul> -->
+
+				<div class="row">
+					<section class="five columns">
+						<pre><code class="coffeescript">&lt;form onSubmit={@onSubmit} /&gt;</code></pre>
+					</section>
+
+					<section class="one columns codeTo" style="padding-top: 3rem;">
+						<i class="fa fa-long-arrow-right"></i>
+					</section>
+
+					<section class="six columns">
+						<pre><code class="coffeescript">&lt;Conform.form onSubmit={@onSubmit} /&gt;</code></pre>
+					</section>
+				</div>
+
+				<div class="row">
+					<section class="five columns">
+						<pre><code class="coffeescript">&lt;input
+	type="text"
+	valueLink={@linkState 'email'}
+	placeholder="username@domain.com"
+	/&gt;</code></pre>
+					</section>
+
+					<section class="one columns codeTo" style="padding-top: 7.5rem;">
+						<i class="fa fa-long-arrow-right"></i>
+					</section>
+
+					<section class="six columns">
+						<pre><code class="coffeescript">&lt;Conform.input
+	type="text"
+	valueLink={@linkState 'email'}
+	placeholder="username@domain.com"
+	validator={Conform.Validators.Contact.Email()}
+	onValidate={@onValidate 'email'}
+	/&gt;</code></pre>
+					</section>
+				</div>
 
 				<p>
-					Alternatively, the source code is available from GitHub at <a href="#">/hirish/conform</a>.
-					Build it with <code>gulp setup build</code>.
+					A <code>validator</code> is the function that tests whether a value is valid. Several common types are included with Conform, or you can write your own. This is covered <a href="#">below</a>.
+				</p>
+				<p>
+					The <code>onValidate</code> prop is called every time the input is validated (i.e. form submission and when the input is blurred). It has the form <code>function onValidate (isValid, errorMsgs, value) {...}</code>, and should be used to display errors to the user. An example onValidate function might be (in <a href="http://coffeescript.org">CoffeeScript</a>):
+				</p>
+
+				<pre><code>onValidate: (name) ->
+	(isValid, errorMsgs, value) =>
+		@state.errors[name] = if isValid then null else errorMsgs
+		@setState errors: @state.errors</pre></code>
+
+				<p>
+					A <code>&lt;Conform.form&gt;</code> will not submit (via default HTML or <code>onSubmit</code>) unless all nested <code>&lt;Conform.input&gt;</code> components are valid.
 				</p>
 
 			</section>
@@ -69,13 +134,174 @@
 				<h5>Validators Available</h5>
 
 				<p>
-					Conform provides drop in replacements for form and input tags.
+					Conform comes prepackaged with a set of common valiators. These are detailed in the table below:
 				</p>
 
-				<p>
-					Alternatively, the source code is available from GitHub at <a href="#">/hirish/conform</a>.
-					Build it with <code>gulp setup build</code>.
-				</p>
+				<table class="u-full-width">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Description</th>
+							<th>Example Values</th>
+						</tr>
+					</thead>
+					<tbody>
+
+						<tr>
+							<td><code>Validators.AlphaNumeric(m)</code></td>
+							<td>Only characters A-Z, a-z and 0-9.</td>
+							<td>
+								<ul class="labels">
+									<li>hello123</li>
+									<li>ThisIsATest</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Alpha(m)</code></td>
+							<td>Only characters A-Z and a-z.</td>
+							<td>
+								<ul class="labels">
+									<li>hello</li>
+									<li>ThisIsATest</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Regex(regex, m)</code></td>
+							<td>Only strings matching <em>regex</em>.</td>
+							<td>
+								<ul class="labels">
+									<li><span class="code">/.{0,4}/</span>hi</li>
+									<li><span class="code">/^h.{0,4}/</span>hi!!</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Length(n, m)</code></td>
+							<td>Number of characters ≤ <em>n</em>.</td>
+							<td>
+								<ul class="labels">
+									<li><span>4</span>hi</li>
+									<li><span>4</span>hi!!</li>
+									<li><span>13</span>This is cool.</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Contact.Email(m)</code></td>
+							<td>Any valid email.</td>
+							<td>
+								<ul class="labels">
+									<li>me@test.com</li>
+									<li>admin@server123</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Contact.Zip(m)</code></td>
+							<td>A valid US Zip code.</td>
+							<td>
+								<ul class="labels">
+									<li>12345</li>
+									<li>12345-1234</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Password(m)</code></td>
+							<td>Strings with > 6 chars and at least 1 non alphabet char.</td>
+							<td>
+								<ul class="labels">
+									<li>hello!@3</li>
+									<li>Th15 is C0ol</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Web.URL(m)</code></td>
+							<td>Web URL. From <a href="http://foundation.zurb.com/docs/components/abide.html">Foundation</a>.</td>
+							<td>
+								<ul class="labels">
+									<li>http://test.com</li>
+									<li>chocolate.com/hello.html</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Web.Domain(m)</code></td>
+							<td>Web domain name.</td>
+							<td>
+								<ul class="labels">
+									<li>subdomain.domain.com</li>
+									<li>domain.org</li>
+									<li>host</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.Web.IP(m)</code></td>
+							<td>IPv4.</td>
+							<td>
+								<ul class="labels">
+									<li>10.0.0.1</li>
+									<li>127.0.0.1</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.DateTime.DateTime(m)</code></td>
+							<td>Date and Time. From <a href="http://foundation.zurb.com/docs/components/abide.html">Foundation</a>.</td>
+							<td>
+								<ul class="labels">
+									<li></li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.DateTime.Date(m)</code></td>
+							<td>Date. From <a href="http://foundation.zurb.com/docs/components/abide.html">Foundation</a>.</td>
+							<td>
+								<ul class="labels">
+									<li></li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.DateTime.Time(m)</code></td>
+							<td>Time - HH:MM:SS. From <a href="http://foundation.zurb.com/docs/components/abide.html">Foundation</a>.</td>
+							<td>
+								<ul class="labels">
+									<li>12:22:00</li>
+									<li>18:49:12</li>
+								</ul>
+							</td>
+						</tr>
+
+						<tr>
+							<td><code>Validators.DateTime.DateISO(m)</code></td>
+							<td>ISO time - YYYY-MM-DD. From <a href="http://foundation.zurb.com/docs/components/abide.html">Foundation</a>.</td>
+							<td>
+								<ul class="labels">
+									<li></li>
+								</ul>
+							</td>
+						</tr>
+
+					</tbody>
+				</table>
 
 			</section>
 
@@ -84,32 +310,103 @@
 				<h5>Writing Your Own Validator</h5>
 
 				<p>
-					Conform provides drop in replacements for form and input tags.
+					It is also possible to write custom validators. These have the following API:
 				</p>
 
+				<pre><code class="coffeescript">customValidator = (value) ->
+		if valid then
+			# An empty return value implies there was no problem with the input value.
+			return
+		else
+			# It is also possible to return multiple error messages (as an array).
+			return "Error message"</code></pre>
+
 				<p>
-					Alternatively, the source code is available from GitHub at <a href="#">/hirish/conform</a>.
-					Build it with <code>gulp setup build</code>.
+				It is also possible to compose the supplied Conform validators using <code>Conform.Validators.And([validators])</code> and <code>Conform.Validators.Or([validators])</code>.
 				</p>
 
 			</section>
 
+			<section>
+
 			<h5>Example - Registration</h5>
 
 			<p>
-				This example uses the <em>LinkState mixin</em>, a <em>custom validator</em>, and <em>multiple</em> validators on a single input - the Username.
+			This example showcases a simple registration form. We demonstrate several included validators (e.g. email), <em>composition</em> of several validators (username) and a <em>custom</em> validator (confirm your password). It is also worth noting that Conform. is completely compatible with the React <em>LinkState mixin</em>, which further cuts down on boilerplate code.
+			</p>
+
+			<p>
+				<code>errorIcon</code> is a shim for a function which displays an icon/tooltip when an error is present.
 			</p>
 
 			<div class="row">
 
-				<section class="four columns" id="react-base"></section>
+				<section class="eight columns">
+					<pre><code class="coffeescript">&lt;Conform.form onSubmit={@onSubmit}&gt;
 
+	&lt;label&gt;Username&lt;/label&gt;
+	&lt;Conform.input
+		type="text"
+		validator={[
+			Conform.Validators.Required()
+			Conform.Validators.Length(4)
+			Conform.Validators.AlphaNumeric()
+		]}
+		onValidate={@onValidate 'username'}
+		valueLink={@linkState 'username'}
+		placeholder="This is a really really long placeholder"
+		/&gt;
+	{errorIcon 'username'}
+
+	&lt;label&gt;Email&lt;/label&gt;
+	&lt;Conform.input
+		placeholder="username@domain.com"
+		type="text"
+		validator={Conform.Validators.Contact.Email()}
+		onValidate={@onValidate 'email'}
+		valueLink={@linkState 'email'}
+		/&gt;
+	{errorIcon 'email'}
+
+	&lt;label&gt;Password&lt;/label&gt;
+	&lt;Conform.input
+		type="password"
+		validator={Conform.Validators.Password()}
+		onValidate={@onValidate 'password'}
+		valueLink={@linkState 'password'}
+		/&gt;
+	{errorIcon 'password'}
+
+	&lt;label&gt;Confirm Your Password&lt;/label&gt;
+	&lt;Conform.input
+		type="password"
+		validator={confirmValidator}
+		onValidate={@onValidate 'confirm'}
+		valueLink={@linkState 'confirm'}
+		/&gt;
+	{errorIcon 'confirm'}
+
+	&lt;input type="submit" value="Submit" /&gt;
+
+&lt;/Conform.form&gt;</code></pre>
+				
+				</section>
+
+
+				<section class="four columns" id="react-base"></section>
 			</div>
+
 
 		</div>
 
+		</section>
+
 		<script src="bower_components/react/react-with-addons.js"></script>
 		<script src="bower_components/underscore/underscore.js"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+
 		<script src="conform.js"></script>
 		<script src="demo.js"></script>
 
